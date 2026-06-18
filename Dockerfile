@@ -40,13 +40,17 @@ RUN set -eux; \
 # entrypoint, and the RUN steps below. HOME is /root (image runs as root).
 ENV PATH="/root/.polkadot/bin:/root/.local/bin:${PATH}"
 
+# Pin the playground-cli release. install.sh honors the VERSION env var; bump
+# this ARG to upgrade. Empty = latest at build time.
+ARG PLAYGROUND_VERSION=v0.44.2
+
 # Run the official installer so the binary + toolchain are baked in. The
 # installer ends by running `pg login --yes` to pre-install deps; that step
 # needs outbound network and can be flaky at build time, so we tolerate its
 # failure here (deps are also set up on the first real `pg login`) and instead
 # assert the binary itself landed in the next step.
 RUN curl -fsSL https://raw.githubusercontent.com/paritytech/playground-cli/main/install.sh -o /tmp/install.sh \
-    && (bash /tmp/install.sh || echo "install.sh post-install (pg login --yes) did not complete; binary verified separately") \
+    && (VERSION="${PLAYGROUND_VERSION}" bash /tmp/install.sh || echo "install.sh post-install (pg login --yes) did not complete; binary verified separately") \
     && rm -f /tmp/install.sh
 
 # Fail the build if the playground binary is not actually on PATH.
