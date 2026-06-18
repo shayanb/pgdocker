@@ -1,0 +1,4 @@
+# Ignore everything dropped into apps/ (user apps, cloned moonless-market),
+# but keep the directory tracked.
+apps/*
+!apps/.gitkeep

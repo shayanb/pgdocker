@@ -1,0 +1,24 @@
+services:
+  pg:
+    build:
+      context: .
+    image: pgdocker
+    # QR login (and an interactive shell) need a TTY + stdin attached.
+    stdin_open: true
+    tty: true
+    working_dir: /work/apps
+    volumes:
+      # Persist the playground binary/toolchain (baked at build, copied into the
+      # empty named volume on first run) and the auth/session created by login.
+      - polkadot-bin:/root/.polkadot
+      - polkadot-apps:/root/.polkadot-apps
+      # Your apps. Drop a dir in ./apps and deploy it.
+      - ./apps:/work/apps
+    # No inbound ports are required to deploy. Uncomment to expose a local
+    # preview server (e.g. `pg` previewing a built frontend) on the host.
+    # ports:
+    #   - "8080:8080"
+
+volumes:
+  polkadot-bin:
+  polkadot-apps:

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Host wrapper: proxy `pg ...` into the container so you can run, e.g.
+#   ./pg login
+#   ./pg deploy --dir /work/apps/myapp --signer dev --suri //Alice --no-build
+# without installing playground-cli (or ipfs/node) on the host.
+set -euo pipefail
+
+# Always operate from the repo dir so docker compose finds the compose file and
+# the ./apps bind mount, regardless of where the wrapper is invoked from.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+exec docker compose run --rm pg pg "$@"
