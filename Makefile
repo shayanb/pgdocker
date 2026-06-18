@@ -21,6 +21,13 @@ MODFLAGS := $(if $(filter 1 yes true on,$(MOD)),--playground --moddable,)
 # Override if taken: make deploy-moonless DOMAIN=moonlessmkt42
 DOMAIN ?= moonlessmarket00
 
+# Signer: `dev` = shared dev keypair (fast, 0-1 taps) but its Bulletin pool
+# account can lose authorization on busy event chains. `phone` = your own
+# logged-in personhood account (3-4 taps), often authorized when dev isn't.
+SIGNER  ?= dev
+# --suri only applies to the dev signer.
+SURIFLAG := $(if $(filter dev,$(SIGNER)),--suri //Alice,)
+
 .PHONY: build login shell deploy deploy-moonless
 
 build:
@@ -40,8 +47,8 @@ deploy:
 		--dir /work/apps/$(APP) \
 		--buildDir /work/apps/$(APP) \
 		--no-build \
-		--signer dev \
-		--suri //Alice \
+		--signer $(SIGNER) \
+		$(SURIFLAG) \
 		$(FLAGS)
 
 # One-shot for MOONLESS MARKET: fetch (or update) the repo into ./apps, then
@@ -58,7 +65,7 @@ deploy-moonless:
 		--dir /work/apps/moonless-market \
 		--buildDir /work/apps/moonless-market \
 		--no-build \
-		--signer dev \
-		--suri //Alice \
+		--signer $(SIGNER) \
+		$(SURIFLAG) \
 		--domain $(DOMAIN) \
 		$(MODFLAGS)
