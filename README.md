@@ -237,6 +237,8 @@ devs** for making the tooling that does the heavy lifting. pgdocker is just a
 thin Docker wrapper around their work so you can deploy without touching your
 host. ✨
 
+Made by **[Shayan Eskandari](https://shayan.es)** · [shayan.es](https://shayan.es) · [@sbetamc](https://x.com/sbetamc)
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
