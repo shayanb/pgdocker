@@ -16,6 +16,56 @@ The image bakes in:
 
 ---
 
+## Quick usage
+
+```bash
+git clone https://github.com/ibeezhan/pgdocker.git && cd pgdocker
+make build          # build the image (Node + ipfs + pg baked in)
+make login          # scan the QR once with the Polkadot mobile app
+
+# drop your app in ./apps/<name>, then deploy it:
+docker compose run --rm pg pg deploy \
+  --dir /work/apps/<name> \
+  --buildDir /work/apps/<name> \
+  --no-build \
+  --signer phone \
+  --domain yourappname00 \
+  --playground --moddable
+```
+
+<details>
+<summary>Sample run (deploying MOONLESS MARKET)</summary>
+
+```
+ playground deploy · moonlessmarket00 · summit v0.44.1
+ ────────────────────────────────────────────────────────────────────────
+
+ frontend
+
+ · build skipped
+ ✓ upload + dotns
+
+ ✓ publish to playground
+
+ ✓ deploy complete
+
+ url https://moonlessmarket00.dot.li
+ domain moonlessmarket00.dot
+ app cid bafybeibkmcjxrv454auauv543l74q2nfsahmjql4dhd4kelg2ajybfgtea
+ ipfs cid bafybeiac2jito74alpygsvg6bndt6zuvgz6hvd3bwpurqzsuwdesv2vdbe
+ metadata cid bafk2bzacecqdqiyuu6rggphsldd4mjx2q4lcuaggxyvnowyw3g7drjvlt6v3w
+```
+
+</details>
+
+> **Domain rule:** the `dev` signer is `NoStatus`, so its label must be
+> **base ≥ 9 chars + exactly two trailing digits** (e.g. `myapphere00`).
+> Signing with `--signer phone` (your personhood account) lifts that.
+> If a deploy fails with *"Bulletin storage … not authorized"*, switch to
+> `--signer phone`, or get the account authorized at the event faucet / `pg drip`.
+
+---
+
 ## Quickstart
 
 ```bash
@@ -56,7 +106,19 @@ so it works no matter where you invoke it from.
 | `make shell` | interactive `bash` inside the container |
 | `make deploy APP=<dir>` | deploy `./apps/<dir>` with dev signer + `--no-build` |
 | `make deploy APP=<dir> FLAGS='…'` | same, plus extra flags passed to `pg deploy` |
-| `make deploy-moonless` | clone/pull **MOONLESS MARKET** and deploy it |
+| `make deploy-moonless` | clone/pull **MOONLESS MARKET** and deploy it (moddable) |
+
+Flags (override on any deploy target):
+
+| Var | Default | Meaning |
+| --- | --- | --- |
+| `SIGNER` | `dev` | `dev` (fast, 0–1 taps) or `phone` (your personhood account, 3–4 taps) |
+| `DOMAIN` | `moonlessmarket00` | `.dot` label (NoStatus rule: base ≥9 + two trailing digits) |
+| `MOD` | `1` | `1` = moddable (`--playground --moddable`); `MOD=0` to opt out |
+
+```bash
+make deploy-moonless SIGNER=phone DOMAIN=mygame00 MOD=1
+```
 
 ---
 
@@ -106,11 +168,17 @@ architecture (`amd64`/`arm64`) at build time and installs it to
 - **`--no-build`** — skip the frontend build. Use it for static / single-file
   sites; point `--buildDir` at the directory that already contains the built
   files (often the app dir itself).
-- **`--env`** — defaults to **`paseo-next-v2`**, the only fully-wired public
-  environment. **`summit` is not supported here**: it needs a custom build, so
-  it's out of scope for this generic setup — use `paseo-next-v2`.
-- **Private-repo apps** deploy fine, but as **non-moddable** sites (no public
-  source to remix from).
+- **`--env`** — the binary targets whatever network its build is wired to. The
+  public release defaults to **`paseo-next-v2`**; event builds (e.g. the
+  **Web3 Summit `summit`** chain) target their own — the CLI shows it in the
+  deploy header. You normally don't pass `--env`.
+- **Bulletin authorization** — uploads go to the Polkadot Bulletin chain. The
+  shared `dev` signer's storage pool can lose authorization on busy event
+  chains (*"… not authorized"*); switch to `--signer phone` or get the account
+  authorized (event faucet / `pg drip`).
+- **Moddable / private repos** — `--moddable` publishes the repo URL so others
+  can `pg mod` it, and **requires a public GitHub origin**. Private-repo apps
+  still deploy fine as non-moddable sites.
 
 ## Deploy any app
 
@@ -155,3 +223,20 @@ git clone git@github.com:ibeezhan/moonless-market.git apps/moonless-market
 > The moonless-market repo also ships its **own** self-contained `deploy/`
 > helper (Docker + compose wired to that repo). pgdocker is the **generic**
 > alternative for deploying *any* app.
+
+---
+
+## Acknowledgements
+
+Built at **[Web3 Summit 2026, Berlin](https://web3summit.com/)** 🐻
+
+Huge thanks to the Web3 Summit crew for organizing **`playground.dot`** — the
+chill, hands-on space to build and ship decentralized apps to a live network in
+minutes — and to the **Parity / [playground-cli](https://github.com/paritytech/playground-cli)
+devs** for making the tooling that does the heavy lifting. pgdocker is just a
+thin Docker wrapper around their work so you can deploy without touching your
+host. ✨
+
+## License
+
+MIT — see [LICENSE](LICENSE).
