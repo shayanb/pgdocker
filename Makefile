@@ -61,9 +61,14 @@ deploy-moonless:
 	fi
 	@# moddable requires origin = public GitHub https URL (fetched via codeload)
 	git -C apps/moonless-market remote set-url origin https://github.com/ibeezhan/moonless-market.git
+	@# Stage ONLY the game into a clean buildDir so the repo's README/deploy/
+	@# don't get uploaded (which made the gateway serve README instead of the
+	@# game). --dir still points at the repo so --moddable records the origin.
+	rm -rf apps/moonless-market/.site && mkdir -p apps/moonless-market/.site
+	cp apps/moonless-market/index.html apps/moonless-market/.site/index.html
 	$(RUN) pg deploy \
 		--dir /work/apps/moonless-market \
-		--buildDir /work/apps/moonless-market \
+		--buildDir /work/apps/moonless-market/.site \
 		--no-build \
 		--signer $(SIGNER) \
 		$(SURIFLAG) \
