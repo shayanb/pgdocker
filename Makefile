@@ -16,6 +16,11 @@ RUN     := $(COMPOSE) run --rm pg
 MOD ?= 1
 MODFLAGS := $(if $(filter 1 yes true on,$(MOD)),--playground --moddable,)
 
+# Domain for moonless. The `dev` signer is NoStatus, so the label must be
+# NoStatus-compatible: base >= 9 chars + exactly two trailing digits.
+# Override if taken: make deploy-moonless DOMAIN=moonlessmkt42
+DOMAIN ?= moonlessmarket00
+
 .PHONY: build login shell deploy deploy-moonless
 
 build:
@@ -55,4 +60,5 @@ deploy-moonless:
 		--no-build \
 		--signer dev \
 		--suri //Alice \
+		--domain $(DOMAIN) \
 		$(MODFLAGS)
